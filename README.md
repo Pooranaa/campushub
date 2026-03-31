@@ -113,3 +113,6 @@ The frontend will run on `http://localhost:3000`.
 - [App.js](/C:/Users/poorn/OneDrive/Documents/New%20project/frontend/src/App.js) controls which page is shown.
 - QR codes are generated when a student registers for an event.
 - Passwords are hashed with `bcrypt`, which means we never save plain-text passwords.
+
+
+CHECK
