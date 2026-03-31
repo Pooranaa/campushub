@@ -53,16 +53,7 @@ const getOpenRecruitments = async () => {
      ORDER BY cr.deadline ASC`
   );
 
-  const now = new Date();
-
-  return rows.filter((row) => {
-    const deadline =
-      row.deadline instanceof Date
-        ? row.deadline
-        : new Date(String(row.deadline).replace(" ", "T"));
-
-    return !Number.isNaN(deadline.getTime()) && deadline >= now;
-  });
+  return rows;
 };
 
 const getRecruitmentsByClub = async (clubCoordinatorId) => {

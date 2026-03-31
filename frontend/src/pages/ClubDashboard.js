@@ -32,10 +32,15 @@ function ClubDashboard({ section = "all" }) {
     title: "",
     description: "",
     deadline: "",
-    questionsText: "Why do you want to join?\nWhat skills can you contribute?"
+    questionsText: "Any portfolio links?\nWhich team would you like to work with?"
   });
   const [volunteerRequests, setVolunteerRequests] = useState([]);
   const [message, setMessage] = useState("");
+
+  const isDuplicateDefaultQuestion = (question) => {
+    const normalized = String(question || "").trim().toLowerCase();
+    return normalized === "why do you want to join?" || normalized === "what skills can you contribute?";
+  };
 
   const loadDashboard = async () => {
     if (!user.club_id) {
@@ -164,7 +169,7 @@ function ClubDashboard({ section = "all" }) {
         title: "",
         description: "",
         deadline: "",
-        questionsText: "Why do you want to join?\nWhat skills can you contribute?"
+        questionsText: "Any portfolio links?\nWhich team would you like to work with?"
       });
 
       try {
@@ -234,6 +239,16 @@ function ClubDashboard({ section = "all" }) {
       loadDashboard();
     } catch (error) {
       setMessage(error.response?.data?.message || "Could not delete recruitment.");
+    }
+  };
+
+  const updateApplicationStatus = async (applicationId, status) => {
+    try {
+      await api.patch(`/clubs/recruitment/applications/${applicationId}/status`, { status });
+      setMessage(`Application ${status}.`);
+      loadDashboard();
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Could not update application.");
     }
   };
 
@@ -407,9 +422,13 @@ function ClubDashboard({ section = "all" }) {
             <h2>View Recruitments</h2>
             <div className="dashboard-list section-spacer">
               {(managedRecruitments.length ? managedRecruitments : dashboard.recentRecruitments).map((recruitment) => {
-                const applicationCount = applications.filter(
+                const allRecruitmentApplications = applications.filter(
                   (application) => Number(application.recruitment_id) === Number(recruitment.id)
-                ).length;
+                );
+                const recruitmentApplications = allRecruitmentApplications.filter(
+                  (application) => application.status === "pending"
+                );
+                const applicationCount = allRecruitmentApplications.length;
 
                 return (
                   <div className="list-row column-row" key={recruitment.id}>
@@ -418,6 +437,35 @@ function ClubDashboard({ section = "all" }) {
                       <p>{recruitment.description}</p>
                       <p>Deadline: {new Date(recruitment.deadline).toLocaleString()}</p>
                       <p>Applications received: {applicationCount}</p>
+                    </div>
+                    <div className="wide-card">
+                      <strong>Pending Applications ({recruitmentApplications.length})</strong>
+                      <div className="dashboard-list section-spacer">
+                        {recruitmentApplications.map((application) => (
+                          <div className="list-row column-row" key={application.id}>
+                            <div>
+                              <h3>{application.student_name}</h3>
+                              <p>Status: {application.status}</p>
+                              {application.answers
+                                .filter((entry) => !isDuplicateDefaultQuestion(entry.question))
+                                .map((entry, index) => (
+                                <p key={`${application.id}-${index}`}>
+                                  <strong>{entry.question}:</strong> {entry.answer}
+                                </p>
+                              ))}
+                            </div>
+                            <div className="action-row">
+                              <button type="button" onClick={() => updateApplicationStatus(application.id, "accepted")}>
+                                Accept
+                              </button>
+                              <button type="button" className="secondary-button" onClick={() => updateApplicationStatus(application.id, "rejected")}>
+                                Reject
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                        {!recruitmentApplications.length && <p>No pending applications right now.</p>}
+                      </div>
                     </div>
                     <div className="action-row">
                       <button type="button" className="secondary-button" onClick={() => handleDeleteRecruitment(recruitment.id)}>

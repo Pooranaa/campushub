@@ -6,16 +6,25 @@ function ClubRecruitmentPage() {
   const isStudent = user.role === "student";
   const [recruitments, setRecruitments] = useState([]);
   const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     deadline: "",
-    questionsText: "Why do you want to join?\nWhat skills can you contribute?"
+    questionsText: "Any portfolio links?\nWhich team would you like to work with?"
   });
   const [answersMap, setAnswersMap] = useState({});
   const [message, setMessage] = useState("");
 
+  const getExtraQuestions = (questions = []) =>
+    questions.filter((question) => {
+      const normalized = String(question).trim().toLowerCase();
+      return normalized !== "why do you want to join?" && normalized !== "what skills can you contribute?";
+    });
+
   const loadRecruitmentData = async () => {
+    setLoading(true);
+
     try {
       const recruitmentResponse = await api.get("/clubs/recruitment");
       setRecruitments(recruitmentResponse.data);
@@ -26,6 +35,8 @@ function ClubRecruitmentPage() {
       }
     } catch (error) {
       console.error("Could not load recruitment data", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,7 +59,7 @@ function ClubRecruitmentPage() {
         title: "",
         description: "",
         deadline: "",
-        questionsText: "Why do you want to join?\nWhat skills can you contribute?"
+        questionsText: "Any portfolio links?\nWhich team would you like to work with?"
       });
       loadRecruitmentData();
     } catch (error) {
@@ -68,6 +79,7 @@ function ClubRecruitmentPage() {
 
   const handleStudentApply = async (recruitmentId, questions) => {
     try {
+      const extraQuestions = getExtraQuestions(questions);
       const answers = [
         {
           question: "Area of interest",
@@ -89,7 +101,7 @@ function ClubRecruitmentPage() {
           question: "Availability",
           answer: answersMap[recruitmentId]?.availability || ""
         },
-        ...questions.map((question, index) => ({
+        ...extraQuestions.map((question, index) => ({
           question,
           answer: answersMap[recruitmentId]?.[`custom_${index}`] || ""
         }))
@@ -97,6 +109,7 @@ function ClubRecruitmentPage() {
 
       const response = await api.post(`/clubs/recruitment/${recruitmentId}/apply`, { answers });
       setMessage(response.data.message);
+      loadRecruitmentData();
     } catch (error) {
       setMessage(error.response?.data?.message || "Could not submit application");
     }
@@ -125,8 +138,14 @@ function ClubRecruitmentPage() {
 
         {message && <p>{message}</p>}
 
+        {loading && (
+          <div className="card">
+            <p>Loading recruitments...</p>
+          </div>
+        )}
+
         <div className="page-grid">
-          {recruitments.map((item) => (
+          {!loading && recruitments.map((item) => (
             <section className="card interactive-card" key={item.id}>
               <p className="panel-tag">{item.club_name}</p>
               <h2>{item.title}</h2>
@@ -174,7 +193,7 @@ function ClubRecruitmentPage() {
                     onChange={(event) => handleStudentAnswerChange(item.id, "availability", event.target.value)}
                   />
                 </div>
-                {item.questions.map((question, index) => (
+                {getExtraQuestions(item.questions).map((question, index) => (
                   <div key={`${item.id}-${index}`}>
                     <label className="input-label">{question}</label>
                     <textarea
@@ -193,7 +212,7 @@ function ClubRecruitmentPage() {
               </div>
             </section>
           ))}
-          {!recruitments.length && <div className="card"><p>No ongoing recruitments right now.</p></div>}
+          {!loading && !recruitments.length && <div className="card"><p>No ongoing recruitments right now.</p></div>}
         </div>
       </section>
     );

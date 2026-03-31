@@ -13,6 +13,52 @@ const {
   deleteRecruitmentById
 } = require("../models/clubModel");
 
+const normalizeDeadline = (deadlineValue) => {
+  if (deadlineValue instanceof Date) {
+    return deadlineValue.getTime();
+  }
+
+  const normalized = new Date(String(deadlineValue).replace(" ", "T"));
+  return normalized.getTime();
+};
+
+const parseQuestions = (questionsValue) => {
+  if (!questionsValue) {
+    return [];
+  }
+
+  if (Array.isArray(questionsValue)) {
+    return questionsValue;
+  }
+
+  try {
+    const parsed = JSON.parse(questionsValue);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return String(questionsValue)
+      .split("\n")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+};
+
+const parseAnswers = (answersValue) => {
+  if (!answersValue) {
+    return [];
+  }
+
+  if (Array.isArray(answersValue)) {
+    return answersValue;
+  }
+
+  try {
+    const parsed = JSON.parse(answersValue);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+};
+
 const getClubs = async (req, res) => {
   try {
     const clubs = await getAllClubs();
@@ -80,12 +126,18 @@ const createClubRecruitment = async (req, res) => {
 const getRecruitments = async (req, res) => {
   try {
     const recruitments = await getOpenRecruitments();
+    const now = Date.now();
 
     res.json(
-      recruitments.map((item) => ({
-        ...item,
-        questions: item.questions ? JSON.parse(item.questions) : []
-      }))
+      recruitments
+        .filter((item) => {
+          const deadlineTime = normalizeDeadline(item.deadline);
+          return !Number.isNaN(deadlineTime) && deadlineTime >= now;
+        })
+        .map((item) => ({
+          ...item,
+          questions: parseQuestions(item.questions)
+        }))
     );
   } catch (error) {
     res.status(500).json({ message: "Could not fetch recruitments.", error: error.message });
@@ -99,7 +151,7 @@ const getClubRecruitments = async (req, res) => {
     res.json(
       recruitments.map((item) => ({
         ...item,
-        questions: item.questions ? JSON.parse(item.questions) : []
+        questions: parseQuestions(item.questions)
       }))
     );
   } catch (error) {
@@ -144,7 +196,7 @@ const getRecruitmentApplications = async (req, res) => {
     res.json(
       applications.map((item) => ({
         ...item,
-        answers: item.answers ? JSON.parse(item.answers) : []
+        answers: parseAnswers(item.answers)
       }))
     );
   } catch (error) {

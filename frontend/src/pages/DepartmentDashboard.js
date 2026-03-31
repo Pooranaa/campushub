@@ -29,15 +29,20 @@ function DepartmentDashboard({ section = "all" }) {
     event_id: "",
     certificate_name: ""
   });
+  const [certificateOptions, setCertificateOptions] = useState({
+    events: [],
+    studentsByEvent: {}
+  });
   const [volunteerRequests, setVolunteerRequests] = useState([]);
   const [message, setMessage] = useState("");
 
   const loadDashboard = async () => {
     try {
-      const [dashboardResponse, volunteerResponse, departmentResponse] = await Promise.all([
+      const [dashboardResponse, volunteerResponse, departmentResponse, certificateOptionsResponse] = await Promise.all([
         api.get("/user/dashboard"),
         api.get("/volunteer/requests"),
-        api.get(`/departments/${user.department_id}`)
+        api.get(`/departments/${user.department_id}`),
+        api.get("/certificates/options")
       ]);
 
       setDashboard(dashboardResponse.data);
@@ -45,6 +50,10 @@ function DepartmentDashboard({ section = "all" }) {
       setDepartmentProfile({
         description: departmentResponse.data.description || "",
         about_us: departmentResponse.data.about_us || ""
+      });
+      setCertificateOptions({
+        events: certificateOptionsResponse.data.events || [],
+        studentsByEvent: certificateOptionsResponse.data.studentsByEvent || {}
       });
     } catch (error) {
       console.error("Could not load department dashboard", error);
@@ -99,6 +108,7 @@ function DepartmentDashboard({ section = "all" }) {
       await api.post("/certificates", certificateForm);
       setMessage("Certificate issued.");
       setCertificateForm({ student_id: "", event_id: "", certificate_name: "" });
+      loadDashboard();
     } catch (error) {
       setMessage(error.response?.data?.message || "Could not issue certificate.");
     }
@@ -126,6 +136,13 @@ function DepartmentDashboard({ section = "all" }) {
       setMessage(error.response?.data?.message || "Could not delete event.");
     }
   };
+
+  const selectedDepartmentEventId = certificateForm.event_id
+    ? String(certificateForm.event_id).split("-")[1]
+    : "";
+  const selectedEventStudents = selectedDepartmentEventId
+    ? certificateOptions.studentsByEvent[selectedDepartmentEventId] || []
+    : [];
 
   return (
     <section>
@@ -292,11 +309,45 @@ function DepartmentDashboard({ section = "all" }) {
         <section className="card">
           <h2>Issue Certificates</h2>
           <form className="form" onSubmit={handleCertificateSubmit}>
-            <input value={certificateForm.student_id} onChange={(e) => setCertificateForm({ ...certificateForm, student_id: e.target.value })} placeholder="Student ID" />
-            <input value={certificateForm.event_id} onChange={(e) => setCertificateForm({ ...certificateForm, event_id: e.target.value })} placeholder="Event ID" />
+            <label className="input-label">Select event</label>
+            <select
+              value={certificateForm.event_id}
+              onChange={(e) =>
+                setCertificateForm({
+                  ...certificateForm,
+                  event_id: e.target.value,
+                  student_id: ""
+                })
+              }
+            >
+              <option value="">Choose an event</option>
+              {certificateOptions.events.map((event) => (
+                <option key={event.id} value={`department-${event.id}`}>
+                  {event.title} - {new Date(event.event_date).toLocaleDateString()}
+                </option>
+              ))}
+            </select>
+            <label className="input-label">Select student</label>
+            <select
+              value={certificateForm.student_id}
+              onChange={(e) => setCertificateForm({ ...certificateForm, student_id: e.target.value })}
+              disabled={!certificateForm.event_id}
+            >
+              <option value="">
+                {certificateForm.event_id ? "Choose a registered student" : "Choose an event first"}
+              </option>
+              {selectedEventStudents.map((student) => (
+                <option key={student.id} value={student.id}>
+                  {student.name}
+                </option>
+              ))}
+            </select>
             <input value={certificateForm.certificate_name} onChange={(e) => setCertificateForm({ ...certificateForm, certificate_name: e.target.value })} placeholder="Certificate name" />
             <button type="submit">Create Certificate</button>
           </form>
+          {certificateForm.event_id && !selectedEventStudents.length && (
+            <p className="muted-text">No registered students found for this event yet.</p>
+          )}
         </section>
         )}
 

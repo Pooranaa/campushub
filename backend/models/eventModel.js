@@ -216,16 +216,18 @@ const getRegistrationsByStudent = async (studentId) => {
     [studentId]
   );
 
-  return rows.map((row) => ({
-    id: row.id,
-    status: row.status,
-    registered_at: row.registered_at,
-    qr_code: row.qr_code,
-    title: row.club_title || row.department_title,
-    event_date: row.club_event_date || row.department_event_date,
-    venue: row.club_venue || row.department_venue,
-    poster: row.club_poster || row.department_poster
-  }));
+  return rows
+    .filter((row) => (row.club_title || row.department_title) && (row.club_event_date || row.department_event_date))
+    .map((row) => ({
+      id: row.id,
+      status: row.status,
+      registered_at: row.registered_at,
+      qr_code: row.qr_code,
+      title: row.club_title || row.department_title,
+      event_date: row.club_event_date || row.department_event_date,
+      venue: row.club_venue || row.department_venue,
+      poster: row.club_poster || row.department_poster
+    }));
 };
 
 const deleteEventById = async (eventId) => {

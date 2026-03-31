@@ -173,6 +173,13 @@ const getDashboard = async (req, res) => {
     const registeredEvents = await getRegistrationsByStudent(req.user.id);
     const volunteerAssignments = await getVolunteerAssignmentsByStudent(req.user.id);
 
+    const [[studentInfo]] = await db.execute(
+      `SELECT name
+       FROM users
+       WHERE id = ?`,
+      [req.user.id]
+    );
+
     const [applications] = await db.execute(
       `SELECT ra.id, ra.status, cr.title
        FROM recruitment_applications ra
@@ -182,14 +189,20 @@ const getDashboard = async (req, res) => {
     );
 
     const [certificates] = await db.execute(
-      `SELECT c.id, c.certificate_name, c.file_path
+      `SELECT c.id,
+              c.certificate_name,
+              c.file_path,
+              c.issued_at,
+              de.title AS event_title
        FROM certificates c
+       JOIN department_events de ON c.department_event_id = de.id
        WHERE c.student_id = ?`,
       [req.user.id]
     );
 
     res.json({
       role: "student",
+      studentName: studentInfo?.name || "",
       upcomingEvents: registeredEvents,
       volunteerAssignments,
       recruitmentApplications: applications,
