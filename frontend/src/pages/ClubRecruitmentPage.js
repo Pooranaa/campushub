@@ -130,9 +130,9 @@ function ClubRecruitmentPage() {
       <section>
         <div className="hero-banner club-hero">
           <div>
-            <p className="hero-tag">Ongoing Recruitments</p>
-            <h1>Apply to clubs that are currently welcoming new members.</h1>
-            <p className="hero-copy">Fill out the interest form and the respective club coordinator will review your application.</p>
+            
+            <h1>Ongoing Recruitments</h1>
+            
           </div>
         </div>
 
@@ -203,9 +203,7 @@ function ClubRecruitmentPage() {
                     />
                   </div>
                 ))}
-                <p className="muted-text">
-                  Clubs can use your interests, motivation, skills, and experience to shortlist applicants.
-                </p>
+                
                 <button type="button" onClick={() => handleStudentApply(item.id, item.questions)}>
                   Submit Application
                 </button>

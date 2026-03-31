@@ -21,9 +21,9 @@ function ClubsPage() {
     <section>
       <div className="hero-banner club-hero">
         <div>
-          <p className="hero-tag">Club Directory</p>
-          <h1>Explore what each club does and meet the people behind it.</h1>
-          <p className="hero-copy">Students can view club about sections and member lists here.</p>
+          
+          <h1>About the Clubs </h1>
+          
         </div>
       </div>
 

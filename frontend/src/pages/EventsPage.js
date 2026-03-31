@@ -30,13 +30,11 @@ function EventsPage({ user }) {
     <section className="fade-in-up">
       <div className="hero-banner events-hero">
         <div>
-          <p className="hero-tag">Campus Events</p>
-          <h1>Browse opportunities that make campus life active, social, and memorable.</h1>
-          <p className="hero-copy">
-            Event posters, dates, venues, and role-aware actions now live in one richer experience.
-          </p>
+          
+          <h1>Upcoming Events</h1>
+          
         </div>
-        {user?.role === "student" && <span className="hero-chip">Student Registration Open</span>}
+        
       </div>
 
       {errorMessage && <p>{errorMessage}</p>}

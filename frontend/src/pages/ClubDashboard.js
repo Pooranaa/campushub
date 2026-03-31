@@ -260,11 +260,9 @@ function ClubDashboard({ section = "all" }) {
     <section>
       <div className="hero-banner club-hero">
         <div>
-          <p className="hero-tag">Welcome Club Coordinator</p>
-          <h1>{dashboard.organizationName ? `${dashboard.organizationName} management dashboard` : "Run your club from the navbar with focused management tools."}</h1>
-          <p className="hero-copy">
-            Use the navigation bar to update club info, create events, view events, create recruitments, review recruitments, and manage volunteer requests.
-          </p>
+          
+          <h1>{dashboard.organizationName ? `${dashboard.organizationName} ` : "Run your club from the navbar with focused management tools."}</h1>
+          
         </div>
         <div className="hero-chip-stack">
           <span className="hero-chip">Events: {dashboard.totalClubEvents}</span>
@@ -293,8 +291,8 @@ function ClubDashboard({ section = "all" }) {
 
           <div className="dashboard-home-grid dashboard-home-grid-compact">
             <div className="card interactive-card">
-              <p className="panel-tag">Upcoming Club Events</p>
-              <h2>What Your Team Is Running</h2>
+              
+              <h2>Upcoming Events</h2>
               <div className="dashboard-list">
                 {dashboard.clubEvents.slice(0, 3).map((event) => (
                   <div className="list-row" key={event.id}>
@@ -310,8 +308,8 @@ function ClubDashboard({ section = "all" }) {
             </div>
 
             <div className="card interactive-card">
-              <p className="panel-tag">Recruitment Activity</p>
-              <h2>Current Club Activity</h2>
+              
+              <h2>Recruitment Activity</h2>
               <div className="metric-ribbon">
                 <span>{volunteerRequests.length} pending requests</span>
                 <span>{managedRecruitments.length} recruitment drives tracked</span>

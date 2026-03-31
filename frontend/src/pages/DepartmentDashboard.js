@@ -162,11 +162,9 @@ function DepartmentDashboard({ section = "all" }) {
     <section>
       <div className="hero-banner department-hero">
         <div>
-          <p className="hero-tag">Welcome Department Coordinator</p>
-          <h1>{dashboard.organizationName ? `${dashboard.organizationName} management dashboard` : "Manage your department from the navbar with clear, role-specific tools."}</h1>
-          <p className="hero-copy">
-            Use the navigation bar to update department info, create events, view events, issue certificates, and manage volunteer requests.
-          </p>
+          
+          <h1>{dashboard.organizationName ? `${dashboard.organizationName} ` : "Manage your department from the navbar with clear, role-specific tools."}</h1>
+          
         </div>
         <div className="hero-chip-stack">
           <span className="hero-chip">Events: {dashboard.totalDepartmentEvents}</span>
@@ -195,8 +193,8 @@ function DepartmentDashboard({ section = "all" }) {
 
           <div className="dashboard-home-grid dashboard-home-grid-compact">
             <div className="card interactive-card">
-              <p className="panel-tag">Upcoming Events</p>
-              <h2>Your Department Schedule</h2>
+              
+              <h2>Upcoming Events</h2>
               <div className="dashboard-list">
                 {dashboard.departmentEvents.slice(0, 3).map((event) => (
                   <div className="list-row" key={event.id}>
@@ -212,8 +210,8 @@ function DepartmentDashboard({ section = "all" }) {
             </div>
 
             <div className="card interactive-card">
-              <p className="panel-tag">Volunteer Queue</p>
-              <h2>Action Needed</h2>
+              
+              <h2>Volunteer Queue</h2>
               <div className="metric-ribbon">
                 <span>{volunteerRequests.length} pending requests</span>
                 <span>{dashboard.departmentEvents.length} tracked events</span>

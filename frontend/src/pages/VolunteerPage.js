@@ -38,9 +38,9 @@ function VolunteerPage() {
     <section>
       <div className="hero-banner student-hero">
         <div>
-          <p className="hero-tag">Volunteer Opportunities</p>
-          <h1>See upcoming events that need extra hands and volunteer in one click.</h1>
-          <p className="hero-copy">Once you apply, the respective club or department coordinator can accept or reject your request.</p>
+          
+          <h1>Volunteer Opportunities</h1>
+          
         </div>
       </div>
 

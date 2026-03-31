@@ -21,9 +21,9 @@ function DepartmentsPage() {
     <section>
       <div className="hero-banner department-hero">
         <div>
-          <p className="hero-tag">Department Directory</p>
-          <h1>Learn about departments, their activities, and the faculty involved.</h1>
-          <p className="hero-copy">Students can browse department information before joining events or volunteering.</p>
+          
+          <h1>About the Departments</h1>
+          
         </div>
       </div>
 
