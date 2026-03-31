@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import api from "../services/api";
 
 function DepartmentDashboard({ section = "all" }) {
@@ -76,6 +75,10 @@ function DepartmentDashboard({ section = "all" }) {
         faculty: []
       });
       setMessage("Department profile updated.");
+      setDepartmentProfile({
+        description: "",
+        about_us: ""
+      });
       loadDashboard();
     } catch (error) {
       setMessage(error.response?.data?.message || "Could not update department profile.");
@@ -95,6 +98,17 @@ function DepartmentDashboard({ section = "all" }) {
 
       await api.post("/events", formData);
       setMessage("Department event created.");
+      setEventForm({
+        title: "",
+        description: "",
+        event_type: "workshop",
+        venue: "",
+        event_date: "",
+        registration_deadline: "",
+        seat_limit: "",
+        volunteer_slots: "",
+        poster: null
+      });
       loadDashboard();
     } catch (error) {
       setMessage(error.response?.data?.message || "Could not create event.");
@@ -179,31 +193,7 @@ function DepartmentDashboard({ section = "all" }) {
             </div>
           </div>
 
-          <div className="dashboard-home-grid">
-            <div className="card spotlight-card interactive-card">
-              <p className="panel-tag">Department Control Center</p>
-              <h2>Keep workshops, lectures, and volunteer coordination moving smoothly.</h2>
-              <p>Everything operational stays in the navbar, while this homepage gives you a polished overview of your department activity.</p>
-              <div className="quick-link-grid">
-                <Link className="action-tile" to="/department/about">
-                  <strong>Department Info</strong>
-                  <span>Update the public department page</span>
-                </Link>
-                <Link className="action-tile" to="/department/events">
-                  <strong>Create Event</strong>
-                  <span>Post a new workshop or lecture</span>
-                </Link>
-                <Link className="action-tile" to="/department/view-events">
-                  <strong>View Events</strong>
-                  <span>See volunteers and event summaries</span>
-                </Link>
-                <Link className="action-tile" to="/department/certificates">
-                  <strong>Certificates</strong>
-                  <span>Issue certificates to participants</span>
-                </Link>
-              </div>
-            </div>
-
+          <div className="dashboard-home-grid dashboard-home-grid-compact">
             <div className="card interactive-card">
               <p className="panel-tag">Upcoming Events</p>
               <h2>Your Department Schedule</h2>
@@ -224,7 +214,6 @@ function DepartmentDashboard({ section = "all" }) {
             <div className="card interactive-card">
               <p className="panel-tag">Volunteer Queue</p>
               <h2>Action Needed</h2>
-              <p>Students who request volunteer roles for your department events appear here first and in the manage volunteers section.</p>
               <div className="metric-ribbon">
                 <span>{volunteerRequests.length} pending requests</span>
                 <span>{dashboard.departmentEvents.length} tracked events</span>

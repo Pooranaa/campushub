@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 function ClubDashboard({ section = "all" }) {
@@ -108,6 +108,10 @@ function ClubDashboard({ section = "all" }) {
         members: []
       });
       setMessage("Club profile updated.");
+      setClubProfile({
+        description: "",
+        about_us: ""
+      });
       loadDashboard();
     } catch (error) {
       setMessage(error.response?.data?.message || "Could not update club profile.");
@@ -287,31 +291,7 @@ function ClubDashboard({ section = "all" }) {
             </div>
           </div>
 
-          <div className="dashboard-home-grid">
-            <div className="card spotlight-card interactive-card">
-              <p className="panel-tag">Club Control Center</p>
-              <h2>Showcase your club, run events, and handle recruitments with a polished overview.</h2>
-              <p>The real tools stay in the navbar, while this homepage gives you a welcoming live overview.</p>
-              <div className="quick-link-grid">
-                <Link className="action-tile" to="/club/about">
-                  <strong>Club Info</strong>
-                  <span>Refresh your club&apos;s public page</span>
-                </Link>
-                <Link className="action-tile" to="/club/events">
-                  <strong>Create Event</strong>
-                  <span>Launch the next club activity</span>
-                </Link>
-                <Link className="action-tile" to="/club/view-events">
-                  <strong>View Events</strong>
-                  <span>Check accepted volunteers and remove old events</span>
-                </Link>
-                <Link className="action-tile" to="/club/view-recruitments">
-                  <strong>View Recruitments</strong>
-                  <span>Review applications and remove old drives</span>
-                </Link>
-              </div>
-            </div>
-
+          <div className="dashboard-home-grid dashboard-home-grid-compact">
             <div className="card interactive-card">
               <p className="panel-tag">Upcoming Club Events</p>
               <h2>What Your Team Is Running</h2>
@@ -330,9 +310,8 @@ function ClubDashboard({ section = "all" }) {
             </div>
 
             <div className="card interactive-card">
-              <p className="panel-tag">Volunteer Queue</p>
-              <h2>People Ready To Help</h2>
-              <p>Volunteer requests stay organized here and in the manage volunteers page, so you can respond quickly.</p>
+              <p className="panel-tag">Recruitment Activity</p>
+              <h2>Current Club Activity</h2>
               <div className="metric-ribbon">
                 <span>{volunteerRequests.length} pending requests</span>
                 <span>{managedRecruitments.length} recruitment drives tracked</span>

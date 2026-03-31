@@ -26,6 +26,13 @@ function RegisterPage() {
     try {
       const response = await api.post("/auth/register", formData);
       setMessage(response.data.message);
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        role: "student",
+        organization_name: ""
+      });
     } catch (error) {
       setMessage(error.response?.data?.message || "Registration failed");
     }
@@ -35,9 +42,8 @@ function RegisterPage() {
 
   return (
     <section className="center-auth fade-in-up">
-      <div className="card auth-card centered-register-card interactive-card">
+      <div className="card auth-card centered-register-card auth-form-card interactive-card">
         <h1>Register</h1>
-        <p className="section-text">Create a student, club coordinator, or department coordinator account.</p>
         <form onSubmit={handleSubmit} className="form">
           <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} />
           <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} />
@@ -61,8 +67,8 @@ function RegisterPage() {
 
           <button type="submit">Create Account</button>
         </form>
-        <p>{message}</p>
-        <Link className="link-text" to="/login">
+        {message && <p>{message}</p>}
+        <Link className="link-text auth-link" to="/login">
           Already have an account? Login
         </Link>
       </div>
