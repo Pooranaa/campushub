@@ -32,6 +32,18 @@ CREATE TABLE department_coordinators (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE email_verifications (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) NOT NULL,
+  role ENUM('student', 'club_coordinator', 'department_coordinator') NOT NULL,
+  organization_name VARCHAR(150),
+  verification_code_hash VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_pending_email (email)
+);
+
 CREATE TABLE club_events (
   id INT PRIMARY KEY AUTO_INCREMENT,
   club_coordinator_id INT NOT NULL,

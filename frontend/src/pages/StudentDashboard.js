@@ -63,8 +63,8 @@ function StudentDashboard() {
       </div>
 
       <div className="student-top-grid">
-        <div className="card interactive-card student-events-card">
-          
+        <div className="card interactive-card student-events-card student-section-card">
+          <p className="panel-tag">Registered Events</p>
           <h2>Your Registered Events</h2>
           <div className="dashboard-list">
             {dashboard.upcomingEvents.slice(0, 3).map((event) => (
@@ -88,8 +88,8 @@ function StudentDashboard() {
           </div>
         </div>
 
-        <div className="card interactive-card">
-          
+        <div className="card interactive-card student-section-card">
+          <p className="panel-tag">Certificates</p>
           <h2>Your Issued Certificates</h2>
           <div className="certificate-grid">
             {dashboard.certificates.map((certificate) => (
@@ -108,8 +108,8 @@ function StudentDashboard() {
       </div>
 
       <div className="student-bottom-grid student-updates-grid">
-        <section className="card interactive-card">
-          
+        <section className="card interactive-card student-section-card">
+          <p className="panel-tag">Recruitment Updates</p>
           <h2>Your Club Applications</h2>
           <div className="dashboard-list">
             {dashboard.recruitmentApplications.map((application) => (
@@ -129,8 +129,8 @@ function StudentDashboard() {
           </div>
         </section>
 
-        <section className="card interactive-card">
-          
+        <section className="card interactive-card student-section-card">
+          <p className="panel-tag">Volunteering</p>
           <h2>Volunteering Details</h2>
           <div className="dashboard-list">
             {dashboard.volunteerAssignments.map((assignment) => (

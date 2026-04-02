@@ -154,6 +154,17 @@ button:hover {
   align-items: start;
 }
 
+.student-section-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+}
+
+.student-section-card h2 {
+  margin: 0;
+}
+
 .card {
   position: relative;
   overflow: hidden;

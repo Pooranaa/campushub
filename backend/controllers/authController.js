@@ -1,25 +1,124 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const db = require("../config/db");
+const { sendVerificationCodeEmail } = require("../config/mailer");
 
-const register = async (req, res) => {
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const isSupportedRole = (role) => ["student", "club_coordinator", "department_coordinator"].includes(role);
+
+const emailExistsAnywhere = async (email) => {
+  const [studentRows] = await db.execute("SELECT id FROM users WHERE email = ?", [email]);
+  const [clubRows] = await db.execute("SELECT id FROM club_coordinators WHERE email = ?", [email]);
+  const [departmentRows] = await db.execute("SELECT id FROM department_coordinators WHERE email = ?", [email]);
+  return Boolean(studentRows.length || clubRows.length || departmentRows.length);
+};
+
+const sendVerificationCode = async (req, res) => {
   try {
-    const { name, email, password, role, organization_name } = req.body;
+    const { name, email, role, organization_name } = req.body;
 
-    if (!name || !email || !password || !role) {
-      return res.status(400).json({ message: "Please fill all required fields." });
+    if (!name || !email || !role) {
+      return res.status(400).json({ message: "Please enter name, email, and role first." });
+    }
+
+    if (!isSupportedRole(role)) {
+      return res.status(400).json({ message: "Invalid role selected." });
     }
 
     if ((role === "club_coordinator" || role === "department_coordinator") && !organization_name) {
       return res.status(400).json({ message: "Please enter the club or department name." });
     }
 
-    const [studentRows] = await db.execute("SELECT id FROM users WHERE email = ?", [email]);
-    const [clubRows] = await db.execute("SELECT id FROM club_coordinators WHERE email = ?", [email]);
-    const [departmentRows] = await db.execute("SELECT id FROM department_coordinators WHERE email = ?", [email]);
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ message: "Please enter a valid email format." });
+    }
 
-    if (studentRows.length || clubRows.length || departmentRows.length) {
+    if (await emailExistsAnywhere(email)) {
       return res.status(400).json({ message: "Email already registered." });
+    }
+
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const codeHash = await bcrypt.hash(code, 10);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await db.execute(
+      `INSERT INTO email_verifications (name, email, role, organization_name, verification_code_hash, expires_at)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         name = VALUES(name),
+         role = VALUES(role),
+         organization_name = VALUES(organization_name),
+         verification_code_hash = VALUES(verification_code_hash),
+         expires_at = VALUES(expires_at)`,
+      [name, email, role, organization_name || null, codeHash, expiresAt]
+    );
+
+    await sendVerificationCodeEmail({ email, name, code });
+
+    res.json({ message: "Verification code sent to your email." });
+  } catch (error) {
+    res.status(500).json({ message: "Could not send verification code.", error: error.message });
+  }
+};
+
+const register = async (req, res) => {
+  try {
+    const { name, email, password, confirm_password, role, organization_name, verification_code } = req.body;
+
+    if (!name || !email || !password || !role || !verification_code) {
+      return res.status(400).json({ message: "Please fill all required fields." });
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ message: "Please enter a valid email format." });
+    }
+
+    if (!isSupportedRole(role)) {
+      return res.status(400).json({ message: "Invalid role selected." });
+    }
+
+    if ((role === "club_coordinator" || role === "department_coordinator") && !organization_name) {
+      return res.status(400).json({ message: "Please enter the club or department name." });
+    }
+
+    if (confirm_password !== undefined && password !== confirm_password) {
+      return res.status(400).json({ message: "Password and confirm password do not match." });
+    }
+
+    if (await emailExistsAnywhere(email)) {
+      return res.status(400).json({ message: "Email already registered." });
+    }
+
+    const [verificationRows] = await db.execute(
+      `SELECT *
+       FROM email_verifications
+       WHERE email = ?`,
+      [email]
+    );
+
+    if (!verificationRows.length) {
+      return res.status(400).json({ message: "Please verify your email first." });
+    }
+
+    const verification = verificationRows[0];
+
+    if (new Date(verification.expires_at) < new Date()) {
+      await db.execute("DELETE FROM email_verifications WHERE email = ?", [email]);
+      return res.status(400).json({ message: "Verification code expired. Please request a new code." });
+    }
+
+    if (
+      verification.name !== name ||
+      verification.role !== role ||
+      (verification.organization_name || "") !== (organization_name || "")
+    ) {
+      return res.status(400).json({ message: "Your registration details changed. Please request a new verification code." });
+    }
+
+    const isCodeValid = await bcrypt.compare(String(verification_code), verification.verification_code_hash);
+    if (!isCodeValid) {
+      return res.status(400).json({ message: "Invalid verification code." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -45,6 +144,8 @@ const register = async (req, res) => {
     } else {
       return res.status(400).json({ message: "Invalid role selected." });
     }
+
+    await db.execute("DELETE FROM email_verifications WHERE email = ?", [email]);
 
     res.status(201).json({ message: "User registered successfully." });
   } catch (error) {
@@ -171,6 +272,7 @@ const login = async (req, res) => {
 };
 
 module.exports = {
+  sendVerificationCode,
   register,
   login
 };
