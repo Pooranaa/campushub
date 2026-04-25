@@ -1,118 +1,86 @@
-# CampusHub
+# How to Run the Project
 
-CampusHub is a beginner-friendly full-stack web application for managing college department and club activities.
+## 1. Create the Database
 
-## Project Structure
+1. Open MySQL Workbench or MySQL Command Line.
+2. Run the SQL file:
+
+```sql
+SOURCE New project/backend/database/schema.sql;
+```
+
+
+## 2. Configure Backend Environment Variables
+
+1. Open the `backend` folder.
+2. Create a `.env` file using `.env.example`.
+3. Add your database and email configuration.
+
+Example:
+
+```env
+PORT=5000
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=campushub
+JWT_SECRET=campushub_super_secret_key
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+SMTP_FROM=CampusHub <your_email@gmail.com>
+PUBLIC_BASE_URL=http://localhost:5000
+```
+
+## 3. Install Backend Dependencies
+
+Open terminal in the `backend` folder and run:
+
+```bash
+npm.cmd install
+```
+
+## 4. Start the Backend
+
+In the `backend` folder, run:
+
+```bash
+npm.cmd run dev
+```
+
+Backend will run on:
 
 ```text
-CampusHub/
-  backend/
-    config/        -> MySQL connection
-    controllers/   -> API logic
-    database/      -> SQL schema
-    middleware/    -> JWT auth and file upload helpers
-    models/        -> Database queries
-    routes/        -> API endpoints
-    server.js      -> Express entry file
-  frontend/
-    public/
-    src/
-      components/  -> Reusable UI parts
-      pages/       -> Page-level components
-      services/    -> Axios API helper
-      App.js       -> Main frontend app
+http://localhost:5000
 ```
 
-## Step 1: Create the Database
+## 5. Install Frontend Dependencies
 
-1. Open MySQL Workbench or the MySQL command line.
-2. Run [schema.sql](/C:/Users/poorn/OneDrive/Documents/New%20project/backend/database/schema.sql).
-3. This creates the `campushub` database and all required tables.
-4. It also adds sample departments and clubs so you can start testing quickly.
+Open another terminal in the `frontend` folder and run:
 
-Main tables created:
-
-- `users`
-- `departments`
-- `clubs`
-- `events`
-- `event_registrations`
-- `recruitments`
-- `recruitment_applications`
-- `volunteers`
-- `attendance`
-- `certificates`
-
-## Step 2: Start the Backend
-
-1. Open a terminal in [backend](/C:/Users/poorn/OneDrive/Documents/New%20project/backend).
-2. Create a new file named `.env` by copying values from [backend/.env.example](/C:/Users/poorn/OneDrive/Documents/New%20project/backend/.env.example).
-3. Update your MySQL password and JWT secret.
-4. On Windows PowerShell, run `npm.cmd install`.
-5. Start the backend with `npm.cmd run dev`.
-
-The backend will run on `http://localhost:5000`.
-
-## Step 3: Test the Backend APIs
-
-Important endpoints:
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/events`
-- `POST /api/events`
-- `POST /api/events/register`
-- `GET /api/clubs`
-- `POST /api/clubs/recruitment`
-- `POST /api/volunteer/apply`
-- `GET /api/user/dashboard`
-
-Example register request:
-
-```json
-POST /api/auth/register
-{
-  "name": "Asha",
-  "email": "asha@example.com",
-  "password": "123456",
-  "role": "student"
-}
+```bash
+npm.cmd install
 ```
 
-Example login request:
+## 6. Start the Frontend
 
-```json
-POST /api/auth/login
-{
-  "email": "asha@example.com",
-  "password": "123456"
-}
+In the `frontend` folder, run:
+
+```bash
+npm.cmd start
 ```
 
-## Step 4: Start the Frontend
+Frontend will run on:
 
-1. Open a second terminal in [frontend](/C:/Users/poorn/OneDrive/Documents/New%20project/frontend).
-2. Run `npm.cmd install`.
-3. Start React with `npm.cmd start`.
+```text
+http://localhost:3000
+```
 
-The frontend will run on `http://localhost:3000`.
+## 7. Use the Application
 
-## Step 5: How the Project Flows
-
-1. React form sends data with Axios from [api.js](/C:/Users/poorn/OneDrive/Documents/New%20project/frontend/src/services/api.js).
-2. Express route receives the request.
-3. Controller processes the request.
-4. Model runs SQL queries in MySQL.
-5. Response goes back to React and is shown on screen.
-
-## Learning Notes
-
-- [server.js](/C:/Users/poorn/OneDrive/Documents/New%20project/backend/server.js) starts the Express app.
-- [authMiddleware.js](/C:/Users/poorn/OneDrive/Documents/New%20project/backend/middleware/authMiddleware.js) checks JWT tokens and user roles.
-- [eventController.js](/C:/Users/poorn/OneDrive/Documents/New%20project/backend/controllers/eventController.js) contains event-related backend logic.
-- [App.js](/C:/Users/poorn/OneDrive/Documents/New%20project/frontend/src/App.js) controls which page is shown.
-- QR codes are generated when a student registers for an event.
-- Passwords are hashed with `bcrypt`, which means we never save plain-text passwords.
-
-
-CHECK
+1. Open `http://localhost:3000`
+2. Register a user account
+3. Login with the created account
+4. Use the dashboard based on the selected role
